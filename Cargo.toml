@@ -1,0 +1,9 @@
+[package]
+name = "stupidfox-rs"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+gdk-pixbuf = "0.19.2"
+gtk = "0.18.1"
+webp = "0.3.0"
