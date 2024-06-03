@@ -1,38 +1,21 @@
-use gdk_pixbuf::PixbufSimpleAnim;
+use gtk::gdk_pixbuf::PixbufAnimation;
 use gtk::prelude::*;
+use gtk::glib::Error;
+use gtk::Image;
 use gtk::{Application, ApplicationWindow};
 
-const FOX: &'static [u8] = include_bytes!("../res/animation.webp");
-const EXPLOSION: &'static [u8] = include_bytes!("../res/explosion.gif");
+//const FOX: &'static [u8] = include_bytes!("../res/animation.webp");
+//const EXPLOSION: &'static [u8] = include_bytes!("../res/explosion.gif");
 
-const FOX_FRAME_RATE: f32 = 24.0; // TODO determine from WEBP?
+fn load_fox() -> Result<PixbufAnimation, Error> {
+    gtk::gdk_pixbuf::PixbufAnimation::from_file("res/animation.gif")
+}
 
-fn load_fox() -> Result<PixbufSimpleAnim, String> {
-    let decoder = webp::AnimDecoder::new(FOX);
-    let decoded = decoder.decode()?;
-    let frame = decoded.get_frame(0).unwrap(); // TODO don't unwrap
-    let width = frame.width() as i32;
-    let height = frame.height() as i32;
-
-    let simple_anim = PixbufSimpleAnim::new(width, height, FOX_FRAME_RATE);
-    
-    for frame in decoded.get_frames(0..decoded.len()).unwrap() { // TODO don't unwrap
-        let pixbuf_data = frame.get_image();
-    }
-
-    Ok(simple_anim)
+fn load_explosion() -> Result<PixbufAnimation, Error> {
+    gtk::gdk_pixbuf::PixbufAnimation::from_file("res/explosion.gif")
 }
 
 fn main() {
-    let decoder = webp::AnimDecoder::new(FOX);
-    let decoded = decoder.decode();
-    match decoded {
-        Ok(img) => {
-            println!("Image loaded: {} frames.", img.len());
-        }
-        Err(err) => println!("Failed loading image: {}", err),
-    };
-
     let app = Application::builder()
         .application_id("org.example.HelloWorld")
         .build();
@@ -45,7 +28,25 @@ fn main() {
             .title("Hello World!")
             .build();
 
-        
+        let fox = load_fox();
+        match fox {
+            Ok(pixbuf) => {
+                println!("Fox loaded.");
+                let anim_image = Image::from_animation(&pixbuf);
+                win.add(&anim_image);
+            },
+            Err(err) => println!("Fox failed to load: {:?}", err),
+        } 
+
+        let explosion = load_explosion();   
+        match explosion {
+            Ok(pixbuf) => {
+                println!("Explosion loaded.");
+                let anim_image = Image::from_animation(&pixbuf);
+                win.add(&anim_image);
+            },
+            Err(err) => println!("Explosion failed to load: {:?}", err),
+        }     
 
         win.show_all();
     });
